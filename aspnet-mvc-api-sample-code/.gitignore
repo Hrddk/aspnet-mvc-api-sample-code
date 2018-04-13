@@ -233,11 +233,3 @@ ModelManifest.xml
 
 # Paket dependency manager
 .paket/paket.exe
-
-# FAKE - F# Make
-.fake/
-/GratShare.PortalSolution/GratShare.Portal/styles
-/GratShare.PortalSolution/GratShare.Portal/Scripts/app/ngController/TaaExportController.js
-/GratShare.PortalSolution/GratShare.Portal/Controllers/ADPCallbackController.cs
-/GratShare.PortalSolution/GratShare.Portal/Controllers/MarketplaceController.cs
-/GratShare.PortalSolution/GratShare.Portal/Models/ADP
