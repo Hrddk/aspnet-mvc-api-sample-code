@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using DataLibrary.DbContext;
-using DataLibrary.Repository;
+using DatabaseLibrary.DbContext;
+using DatabaseLibrary.Repository;
+using Newtonsoft.Json;
 
 namespace aspnet_mvc_api.Controllers
 {
@@ -20,22 +23,37 @@ namespace aspnet_mvc_api.Controllers
         }
 
         // GET: api/User
-        public IEnumerable<User> GetUsers()
+        [ResponseType(typeof(IEnumerable<User>))]
+        public async Task<IHttpActionResult> GetUsers()
         {
-            return _repository.Users().ToList();
+            try
+            {
+                var list = await _repository.Users().ToListAsync();
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // GET: api/User/5
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int id)
         {
-            User user = await _repository.FindAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                User user = await _repository.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
             }
-
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // PUT: api/User/5
@@ -43,46 +61,42 @@ namespace aspnet_mvc_api.Controllers
         public async Task<IHttpActionResult> PutUser(int id, User user)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != user.Id)
-            {
                 return BadRequest();
-            }
 
             try
             {
-                await _repository.Update(user);
+                var updatedUser = await _repository.Update(user);
+                return Ok(updatedUser);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!UserExists(id))
-                {
                     return NotFound();
-                }
                 else
-                {
-                    throw;
-                }
+                    return InternalServerError(ex);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/User
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> PostUser(User user)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var newlyAddedUser = await _repository.Add(user);
+                return Ok(newlyAddedUser);
             }
-
-            await _repository.Add(user);
-
-            return CreatedAtRoute("DefaultApi", new { id = user.Id }, user);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // DELETE: api/User/5

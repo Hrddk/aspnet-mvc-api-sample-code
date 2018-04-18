@@ -1,62 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using DataLibrary.DbContext;
+using DatabaseLibrary.DbContext;
+using DatabaseLibrary.Repository;
 
 namespace aspnet_mvc_api.Controllers
 {
     public class DepartmentController : ApiController
     {
-        private DatabaseContext db = new DatabaseContext();
-
-        // GET: api/Department
-        public IQueryable<Department> GetDepartments()
+        private readonly DepartmentRepository _repository;
+        public DepartmentController()
         {
-            return db.Departments;
+            _repository = DepartmentRepository.Instance;
+        }
+        // GET: api/Department
+        public async Task<IHttpActionResult> GetDepartments()
+        {
+            try
+            {
+                var list = await _repository.Departments().ToListAsync();
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // GET: api/Department/5
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> GetDepartment(int id)
         {
-            Department department = await db.Departments.FindAsync(id);
-            if (department == null)
+            try
             {
-                return NotFound();
+                Department department = await _repository.FindAsync(id);
+                if (department == null)
+                {
+                    return NotFound();
+                }
+                return Ok(department);
             }
-
-            return Ok(department);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // PUT: api/Department/5
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutDepartment(int id, Department department)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != department.Id)
-            {
-                return BadRequest();
-            }
-
-            db.Entry(department).State = EntityState.Modified;
-
             try
             {
-                await db.SaveChangesAsync();
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (id != department.Id)
+                {
+                    return BadRequest();
+                }
+
+                Department depart = await _repository.Update(department);
+                return StatusCode(HttpStatusCode.NoContent);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!DepartmentExists(id))
                 {
@@ -64,56 +78,51 @@ namespace aspnet_mvc_api.Controllers
                 }
                 else
                 {
-                    throw;
+                    return InternalServerError(ex);
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // POST: api/Department
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> PostDepartment(Department department)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var addedDepartment = await _repository.Add(department);
+                return Ok(addedDepartment);
             }
-
-            db.Departments.Add(department);
-            await db.SaveChangesAsync();
-
-            return CreatedAtRoute("DefaultApi", new { id = department.Id }, department);
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // DELETE: api/Department/5
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> DeleteDepartment(int id)
         {
-            Department department = await db.Departments.FindAsync(id);
+            Department department = await _repository.Delete(id);
             if (department == null)
             {
                 return NotFound();
             }
-
-            db.Departments.Remove(department);
-            await db.SaveChangesAsync();
-
             return Ok(department);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
 
         private bool DepartmentExists(int id)
         {
-            return db.Departments.Count(e => e.Id == id) > 0;
+            return _repository.Departments().Count(e => e.Id == id) > 0;
         }
     }
 }
