@@ -22,7 +22,6 @@ namespace aspnet_mvc_api.Controllers
             _repository = UserRepository.Instance;
         }
 
-        // GET: api/User
         [ResponseType(typeof(IEnumerable<User>))]
         public async Task<IHttpActionResult> GetUsers()
         {
@@ -37,7 +36,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // GET: api/User/5
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int id)
         {
@@ -56,7 +54,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // PUT: api/User/5
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutUser(int id, User user)
         {
@@ -80,7 +77,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // POST: api/User
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> PostUser(User user)
         {
@@ -99,7 +95,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // DELETE: api/User/5
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> DeleteUser(int id)
         {

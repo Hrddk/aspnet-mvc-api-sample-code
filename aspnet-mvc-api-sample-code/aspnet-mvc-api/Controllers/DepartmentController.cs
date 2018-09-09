@@ -18,7 +18,7 @@ namespace aspnet_mvc_api.Controllers
         {
             _repository = DepartmentRepository.Instance;
         }
-        // GET: api/Department
+
         public async Task<IHttpActionResult> GetDepartments()
         {
             try
@@ -32,7 +32,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // GET: api/Department/5
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> GetDepartment(int id)
         {
@@ -51,7 +50,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // PUT: api/Department/5
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutDepartment(int id, Department department)
         {
@@ -88,7 +86,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // POST: api/Department
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> PostDepartment(Department department)
         {
@@ -108,7 +105,6 @@ namespace aspnet_mvc_api.Controllers
             }
         }
 
-        // DELETE: api/Department/5
         [ResponseType(typeof(Department))]
         public async Task<IHttpActionResult> DeleteDepartment(int id)
         {
